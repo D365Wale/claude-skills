@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a **comprehensive skills library** for Claude AI and Claude Code - reusable, production-ready skill packages that bundle domain expertise, best practices, analysis tools, and strategic frameworks. The repository provides modular skills that teams can download and use directly in their workflows.
 
-**Current Scope:** 272 production-ready skills across 9 domains with 385 Python automation tools, 519 reference guides, 44 agents (37 `cs-*` + 7 personas), and 58 slash commands. v2.6.0 adds 4 Matt Pocock-derived productivity skills (write-a-skill, caveman, grill-me, handoff) under MIT.
+**Current Scope:** 311 production-ready skills across 12 domains with ~398 Python automation tools, ~538 reference guides, 45+ agents (cs-* + 7 personas), and 59+ slash commands. v2.7.0 adds 13 Path-B skills across 3 new top-level domains (productivity, marketing, research). v2.6.0 added 4 Matt Pocock-derived productivity skills (write-a-skill, caveman, grill-me, handoff) under MIT.
 
 **Key Distinction**: This is NOT a traditional application. It's a library of skill packages meant to be extracted and deployed by users into their own Claude workflows.
 

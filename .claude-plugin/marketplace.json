@@ -4,12 +4,12 @@
     "name": "Alireza Rezvani",
     "url": "https://alirezarezvani.com"
   },
-  "description": "272 production-ready skill packages for Claude AI across 9 domains: engineering advanced (71 unique \u2014 incl. 4 Matt Pocock-derived productivity skills with validation wrappers), engineering core (51), marketing (45), c-level advisory (34), product (17), regulatory/QMS (14), project management (9), business growth (5), and finance (4). Includes 385 Python tools, 519 reference documents, 31 agents (24 cs-* + 7 personas), and 58 slash commands.",
+  "description": "311 production-ready skill packages for Claude AI across 12 domains: engineering advanced (75 \u2014 incl. 4 Matt Pocock-derived productivity skills), engineering core (51), marketing (46), c-level advisory (66), product (17), regulatory/QMS (18), project management (9), business growth (5), finance (4), productivity (4, v2.7.0), marketing top-level (2, v2.7.0), and research (8, v2.7.0). Includes ~398 Python tools, ~538 reference documents, 45+ agents, 59+ slash commands.",
   "homepage": "https://github.com/alirezarezvani/claude-skills",
   "repository": "https://github.com/alirezarezvani/claude-skills",
   "metadata": {
-    "description": "272 production-ready skill packages across 9 domains with 385 Python tools, 519 reference documents, 31 agents (24 cs-* + 7 personas), and 58 slash commands. Compatible with Claude Code, Codex CLI, Hermes Agent, Cursor, Antigravity, OpenCode, Gemini CLI, and OpenClaw.",
-    "version": "2.6.1"
+    "description": "311 production-ready skill packages across 12 domains (engineering, marketing, product, c-level, project management, RA/QM, business growth, finance, productivity, marketing (top-level), research, plus standards). ~398 Python tools, ~538 reference guides, 45+ agents (cs-* + personas), 59+ slash commands. Compatible with Claude Code, Codex CLI, Gemini CLI, Cursor, OpenClaw, Hermes Agent, and 6 more coding agents.",
+    "version": "2.7.0"
   },
   "plugins": [
     {
