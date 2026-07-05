@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "env": {
+    "ATLAS_API_URL": "@atlas_api_url"
+  },
+  "build": {
+    "env": {
+      "ATLAS_API_URL": "@atlas_api_url"
+    }
+  }
+}

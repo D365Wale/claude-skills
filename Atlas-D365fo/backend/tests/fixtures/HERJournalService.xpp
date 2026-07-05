@@ -1,0 +1,135 @@
+/// <summary>
+/// Request contract for journal creation. Realistic X++ shaped on the
+/// HERJournalService pattern (matches the live Alighieri endpoint).
+/// </summary>
+[DataContractAttribute]
+public class HERJournalLineContract
+{
+    private str accountType;
+    private str mainAccount;
+    private real debitAmount;
+    private real creditAmount;
+    private str offsetMainAccount;
+    private str text;
+
+    [DataMemberAttribute('AccountType')]
+    public str parmAccountType(str _accountType = accountType)
+    {
+        accountType = _accountType;
+        return accountType;
+    }
+
+    [DataMemberAttribute('MainAccount')]
+    public str parmMainAccount(str _mainAccount = mainAccount)
+    {
+        mainAccount = _mainAccount;
+        return mainAccount;
+    }
+
+    [DataMemberAttribute('DebitAmount')]
+    public real parmDebitAmount(real _debitAmount = debitAmount)
+    {
+        debitAmount = _debitAmount;
+        return debitAmount;
+    }
+
+    [DataMemberAttribute('CreditAmount')]
+    public real parmCreditAmount(real _creditAmount = creditAmount)
+    {
+        creditAmount = _creditAmount;
+        return creditAmount;
+    }
+
+    [DataMemberAttribute('OffsetMainAccount')]
+    public str parmOffsetMainAccount(str _offsetMainAccount = offsetMainAccount)
+    {
+        offsetMainAccount = _offsetMainAccount;
+        return offsetMainAccount;
+    }
+
+    [DataMemberAttribute('Text')]
+    public str parmText(str _text = text)
+    {
+        text = _text;
+        return text;
+    }
+}
+
+[DataContractAttribute]
+public class HERJournalRequestContract
+{
+    private str journalName;
+    private str description;
+    private str journalType;
+    private str postingLayer;
+
+    [DataMemberAttribute('JournalName')]
+    public str parmJournalName(str _journalName = journalName)
+    {
+        journalName = _journalName;
+        return journalName;
+    }
+
+    [DataMemberAttribute('Description')]
+    public str parmDescription(str _description = description)
+    {
+        description = _description;
+        return description;
+    }
+
+    [DataMemberAttribute('JournalType')]
+    public str parmJournalType(str _journalType = journalType)
+    {
+        journalType = _journalType;
+        return journalType;
+    }
+
+    [DataMemberAttribute('PostingLayer')]
+    public str parmPostingLayer(str _postingLayer = postingLayer)
+    {
+        postingLayer = _postingLayer;
+        return postingLayer;
+    }
+}
+
+[DataContractAttribute]
+public class HERJournalResponseContract
+{
+    private str journalNum;
+    private boolean success;
+
+    [DataMemberAttribute('JournalNum')]
+    public str parmJournalNum(str _journalNum = journalNum)
+    {
+        journalNum = _journalNum;
+        return journalNum;
+    }
+
+    [DataMemberAttribute('Success')]
+    public boolean parmSuccess(boolean _success = success)
+    {
+        success = _success;
+        return success;
+    }
+}
+
+/// <summary>
+/// Journal service exposing create and status operations.
+/// </summary>
+public class HERJournalService
+{
+    [SysEntryPointAttribute(true)]
+    public HERJournalResponseContract createJournal(HERJournalRequestContract _request)
+    {
+        HERJournalResponseContract response = new HERJournalResponseContract();
+        // ... journal creation logic ...
+        return response;
+    }
+
+    [SysEntryPointAttribute(true)]
+    public str getJournalStatus(str _journalNum)
+    {
+        // ... status lookup ...
+        return '';
+    }
+}

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Realistic subset of a D365 F&O /data/$metadata document.
+     Entity/field names match real D365 data entities so search-relevance
+     tests exercise genuine naming conventions. -->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Microsoft.Dynamics.DataEntities">
+
+      <EnumType Name="SalesOrderStatus">
+        <Member Name="None" Value="0" />
+        <Member Name="Backorder" Value="1" />
+        <Member Name="Delivered" Value="2" />
+        <Member Name="Invoiced" Value="3" />
+        <Member Name="Canceled" Value="4" />
+      </EnumType>
+
+      <EnumType Name="NoYes">
+        <Member Name="No" Value="0" />
+        <Member Name="Yes" Value="1" />
+      </EnumType>
+
+      <EntityType Name="LedgerJournalHeader">
+        <Key>
+          <PropertyRef Name="dataAreaId" />
+          <PropertyRef Name="JournalBatchNumber" />
+        </Key>
+        <Property Name="dataAreaId" Type="Edm.String" Nullable="false" />
+        <Property Name="JournalBatchNumber" Type="Edm.String" Nullable="false" />
+        <Property Name="JournalName" Type="Edm.String" />
+        <Property Name="Description" Type="Edm.String" />
+        <Property Name="PostingLayer" Type="Edm.String" />
+        <Property Name="IsPosted" Type="Microsoft.Dynamics.DataEntities.NoYes" />
+      </EntityType>
+
+      <EntityType Name="LedgerJournalLine">
+        <Key>
+          <PropertyRef Name="dataAreaId" />
+          <PropertyRef Name="JournalBatchNumber" />
+          <PropertyRef Name="LineNumber" />
+        </Key>
+        <Property Name="dataAreaId" Type="Edm.String" Nullable="false" />
+        <Property Name="JournalBatchNumber" Type="Edm.String" Nullable="false" />
+        <Property Name="LineNumber" Type="Edm.Decimal" Nullable="false" />
+        <Property Name="AccountType" Type="Edm.String" />
+        <Property Name="MainAccount" Type="Edm.String" />
+        <Property Name="DebitAmount" Type="Edm.Decimal" />
+        <Property Name="CreditAmount" Type="Edm.Decimal" />
+        <Property Name="OffsetMainAccount" Type="Edm.String" />
+        <Property Name="Text" Type="Edm.String" />
+      </EntityType>
+
+      <EntityType Name="CustomerV3">
+        <Key>
+          <PropertyRef Name="dataAreaId" />
+          <PropertyRef Name="CustomerAccount" />
+        </Key>
+        <Property Name="dataAreaId" Type="Edm.String" Nullable="false" />
+        <Property Name="CustomerAccount" Type="Edm.String" Nullable="false" />
+        <Property Name="OrganizationName" Type="Edm.String" />
+        <Property Name="CustomerGroupId" Type="Edm.String" />
+        <Property Name="SalesCurrencyCode" Type="Edm.String" />
+        <Property Name="PrimaryContactEmail" Type="Edm.String" />
+        <Property Name="CreditLimit" Type="Edm.Decimal" />
+      </EntityType>
+
+      <EntityType Name="SalesOrderHeaderV2">
+        <Key>
+          <PropertyRef Name="dataAreaId" />
+          <PropertyRef Name="SalesOrderNumber" />
+        </Key>
+        <Property Name="dataAreaId" Type="Edm.String" Nullable="false" />
+        <Property Name="SalesOrderNumber" Type="Edm.String" Nullable="false" />
+        <Property Name="OrderingCustomerAccountNumber" Type="Edm.String" />
+        <Property Name="SalesOrderStatus" Type="Microsoft.Dynamics.DataEntities.SalesOrderStatus" />
+        <Property Name="CurrencyCode" Type="Edm.String" />
+        <Property Name="RequestedShippingDate" Type="Edm.DateTimeOffset" />
+        <Property Name="TotalTaxAmount" Type="Edm.Decimal" />
+      </EntityType>
+
+      <EntityType Name="VendorV2">
+        <Key>
+          <PropertyRef Name="dataAreaId" />
+          <PropertyRef Name="VendorAccountNumber" />
+        </Key>
+        <Property Name="dataAreaId" Type="Edm.String" Nullable="false" />
+        <Property Name="VendorAccountNumber" Type="Edm.String" Nullable="false" />
+        <Property Name="VendorOrganizationName" Type="Edm.String" />
+        <Property Name="VendorGroupId" Type="Edm.String" />
+        <Property Name="CurrencyCode" Type="Edm.String" />
+      </EntityType>
+
+      <Action Name="createJournal">
+        <Parameter Name="_request" Type="Microsoft.Dynamics.DataEntities.JournalRequest" />
+      </Action>
+
+      <EntityContainer Name="Resources">
+        <EntitySet Name="LedgerJournalHeaders" EntityType="Microsoft.Dynamics.DataEntities.LedgerJournalHeader" />
+        <EntitySet Name="LedgerJournalLines" EntityType="Microsoft.Dynamics.DataEntities.LedgerJournalLine" />
+        <EntitySet Name="CustomersV3" EntityType="Microsoft.Dynamics.DataEntities.CustomerV3" />
+        <EntitySet Name="SalesOrderHeadersV2" EntityType="Microsoft.Dynamics.DataEntities.SalesOrderHeaderV2" />
+        <EntitySet Name="VendorsV2" EntityType="Microsoft.Dynamics.DataEntities.VendorV2" />
+      </EntityContainer>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
