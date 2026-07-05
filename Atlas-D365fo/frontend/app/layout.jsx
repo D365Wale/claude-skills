@@ -16,6 +16,7 @@ export default function RootLayout({ children }) {
           <nav>
             <a href="/">Metadata Search</a>
             <a href="/xpp">X++ Service Catalog</a>
+            <a href="/er">ER Validator</a>
           </nav>
         </header>
         <main>{children}</main>

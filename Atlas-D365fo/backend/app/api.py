@@ -13,7 +13,9 @@ from pydantic import BaseModel
 from app.d365.auth import TokenProvider
 from app.d365.client import D365Client
 from app.d365.edmx import EntityDoc, parse_edmx
+from app.d365.er import parse_er_config
 from app.d365.xpp import parse_xpp
+from app.generate.er_report import validate_er_config
 from app.generate.openapi import build_openapi
 from app.generate.postman import build_postman_collection
 
@@ -191,6 +193,60 @@ async def xpp_postman(request: Request) -> dict:
     if not xpp:
         raise HTTPException(404, "No X++ source ingested — run /xpp/ingest first")
     return build_postman_collection(xpp["service_group"], xpp["services"], xpp["contracts"])
+
+
+class ERIngestRequest(BaseModel):
+    er_xml: str
+
+
+@router.post("/er/ingest")
+async def er_ingest(request: Request, body: ERIngestRequest) -> dict:
+    """Parse an exported ER configuration for offline validation."""
+    try:
+        config = parse_er_config(body.er_xml)
+    except Exception as exc:  # noqa: BLE001 — surface any XML failure as 422
+        raise HTTPException(422, f"Could not parse ER XML: {exc}") from exc
+    if not config.model_nodes and not config.format_elements:
+        raise HTTPException(422, "No ER model nodes or format elements found")
+    request.app.state.er = config
+    return {
+        "name": config.name,
+        "type": config.config_type,
+        "model_nodes": len(config.model_nodes),
+        "format_elements": len(config.format_elements),
+    }
+
+
+@router.get("/er/report")
+async def er_report(request: Request) -> dict:
+    config = getattr(request.app.state, "er", None)
+    if config is None:
+        raise HTTPException(404, "No ER config ingested — run /er/ingest first")
+    findings = validate_er_config(config)
+    return {
+        "name": config.name,
+        "model_paths": [n.path for n in config.model_nodes],
+        "format_elements": [
+            {
+                "name": f.name,
+                "type": f.element_type,
+                "bindings": f.bindings,
+                "formulas": f.formulas,
+            }
+            for f in config.format_elements
+        ],
+        "findings": [
+            {
+                "severity": f.severity,
+                "kind": f.kind,
+                "location": f.location,
+                "detail": f.detail,
+            }
+            for f in findings
+        ],
+        "errors": sum(1 for f in findings if f.severity == "error"),
+        "warnings": sum(1 for f in findings if f.severity == "warning"),
+    }
 
 
 def make_doc_index(docs: list[EntityDoc]) -> dict[str, EntityDoc]:

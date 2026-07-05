@@ -1,0 +1,21 @@
+{
+  "stamp": "20260705T093628Z",
+  "allPass": true,
+  "results": [
+    [
+      "ER summary line",
+      "2 errors, 1 warning rendered",
+      true
+    ],
+    [
+      "Broken binding surfaced",
+      "CdtrNm FullName visible = true",
+      true
+    ],
+    [
+      "Expression error surfaced",
+      "unbalanced-paren visible = true",
+      true
+    ]
+  ]
+}

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ER configuration fixture, shaped on the documented GER export structure:
+     data model node tree + format elements with bindings and formulas.
+     Contains TWO intentional defects for validator tests:
+     1. Element "CdtrNm" binds model.Payment.Creditor.FullName (not in model)
+     2. Element "Amt" formula uses ROUNDX (unknown fn) + unbalanced paren -->
+<ERConfiguration name="ISO20022 Credit Transfer" type="Format">
+
+  <DataModel name="PaymentModel">
+    <Node path="model.Payment" type="record">
+      <Node path="model.Payment.ProcessingDate" type="date" />
+      <Node path="model.Payment.Currency" type="string" />
+      <Node path="model.Payment.Creditor" type="record">
+        <Node path="model.Payment.Creditor.Name" type="string" />
+        <Node path="model.Payment.Creditor.AccountNumber" type="string" />
+      </Node>
+      <Node path="model.Payment.Lines" type="recordlist">
+        <Node path="model.Payment.Lines.Amount" type="real" />
+        <Node path="model.Payment.Lines.Reference" type="string" />
+      </Node>
+    </Node>
+  </DataModel>
+
+  <Format name="ISO20022_pain.001">
+    <Element name="MsgId" type="XMLElement">
+      <Formula>CONCATENATE("PAY-", DATEFORMAT(model.Payment.ProcessingDate, "yyyyMMdd"))</Formula>
+    </Element>
+    <Element name="Ccy" type="XMLAttribute">
+      <Binding path="model.Payment.Currency" />
+    </Element>
+    <Element name="CdtrNm" type="XMLElement">
+      <Binding path="model.Payment.Creditor.FullName" />
+    </Element>
+    <Element name="CdtrAcct" type="XMLElement">
+      <Binding path="model.Payment.Creditor.AccountNumber" />
+    </Element>
+    <Element name="Amt" type="XMLElement">
+      <Formula>ROUNDX(SUM(model.Payment.Lines.Amount), 2</Formula>
+    </Element>
+    <Element name="RmtInf" type="XMLElement">
+      <Binding path="model.Payment.Lines.Reference" />
+      <Formula>TRIM(model.Payment.Lines.Reference)</Formula>
+    </Element>
+  </Format>
+
+</ERConfiguration>
