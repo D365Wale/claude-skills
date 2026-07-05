@@ -77,3 +77,47 @@ The image builds normally on any machine with Docker Hub access (`docker build -
 | Container CMD + healthcheck | ✅ (image pull blocked by sandbox egress) |
 
 **All achievable checks passed.**
+
+---
+
+## Run 2 — 2026-07-05T09:36:28Z — Sprint 4: ER Config Validator
+
+**Commit:** ER module (parser + binding/expression validators + /er UI)
+
+### Backend — pytest + ruff
+
+```
+$ python3 -m pytest tests/ -q
+29 passed, 1 warning in 0.54s      # +7 new ER tests
+
+$ python3 -m ruff check app/ tests/
+All checks passed!
+```
+
+### What the ER module catches (fixture has 2 intentional defects)
+
+| Element | Finding | Severity |
+|---------|---------|----------|
+| `CdtrNm` | Binding references `model.Payment.Creditor.FullName` — not in data model | error |
+| `Amt` | Unbalanced parentheses in formula | error |
+| `Amt` | Unknown ER function `ROUNDX` | warning |
+| `Ccy`, `MsgId`, `RmtInf`, `CdtrAcct` | valid — no findings | — |
+
+### Frontend — Playwright /er journey
+
+```
+PASS — ER summary line: 2 errors, 1 warning rendered
+PASS — Broken binding surfaced: CdtrNm FullName visible = true
+PASS — Expression error surfaced: unbalanced-paren visible = true
+```
+
+**Screenshot — ER validator with findings:**
+
+![ER validator](evidence/er_20260705T093628Z.png)
+
+> Fixture is shaped on the documented GER export structure. Validate against a
+> real sandbox export (Organization administration → Electronic reporting →
+> Exchange → Export) before production use — the parser tolerates unknown
+> wrapper elements by scanning for `Node`/`Element`/`Binding`/`Formula`.
+
+**All checks passed. Sprint 4 complete — all three research-confirmed pain points now have working modules.**
