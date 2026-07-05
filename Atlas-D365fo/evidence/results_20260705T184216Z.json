@@ -1,0 +1,26 @@
+{
+  "stamp": "20260705T184216Z",
+  "allPass": true,
+  "results": [
+    [
+      "Binding fix suggestion",
+      "Creditor.Name suggested = true",
+      true
+    ],
+    [
+      "Function fix suggestion",
+      "ROUND suggested for ROUNDX = true",
+      true
+    ],
+    [
+      "Binding search",
+      "AccountNumber ranked for 'creditor account number'",
+      true
+    ],
+    [
+      "Formula library",
+      "SUM pattern returned for 'sum line amounts'",
+      true
+    ]
+  ]
+}

@@ -15,6 +15,7 @@ from app.d365.client import D365Client
 from app.d365.edmx import EntityDoc, parse_edmx
 from app.d365.er import parse_er_config
 from app.d365.xpp import parse_xpp
+from app.generate.er_assist import search_formulas, suggest_bindings, suggest_fixes
 from app.generate.er_report import validate_er_config
 from app.generate.openapi import build_openapi
 from app.generate.postman import build_postman_collection
@@ -235,18 +236,27 @@ async def er_report(request: Request) -> dict:
             }
             for f in config.format_elements
         ],
-        "findings": [
-            {
-                "severity": f.severity,
-                "kind": f.kind,
-                "location": f.location,
-                "detail": f.detail,
-            }
-            for f in findings
-        ],
+        "findings": suggest_fixes(findings, config),
         "errors": sum(1 for f in findings if f.severity == "error"),
         "warnings": sum(1 for f in findings if f.severity == "warning"),
     }
+
+
+@router.get("/er/suggest")
+async def er_suggest(request: Request, field: str = Query(min_length=1), top_k: int = 5) -> dict:
+    """Natural-language field description -> ranked model paths."""
+    config = getattr(request.app.state, "er", None)
+    if config is None:
+        raise HTTPException(404, "No ER config ingested — run /er/ingest first")
+    ranked = await suggest_bindings(field, config, request.app.state.embedder, top_k=top_k)
+    return {"field": field, "suggestions": ranked}
+
+
+@router.get("/er/formulas")
+async def er_formulas(request: Request, q: str = Query(min_length=1), top_k: int = 3) -> dict:
+    """Search the common GER formula pattern library by intent."""
+    ranked = await search_formulas(q, request.app.state.embedder, top_k=top_k)
+    return {"query": q, "patterns": ranked}
 
 
 def make_doc_index(docs: list[EntityDoc]) -> dict[str, EntityDoc]:
