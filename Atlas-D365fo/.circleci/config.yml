@@ -1,0 +1,53 @@
+version: 2.1
+
+jobs:
+  backend:
+    docker:
+      - image: cimg/python:3.11
+    working_directory: ~/atlas/backend
+    steps:
+      - checkout:
+          path: ~/atlas
+      - run:
+          name: Install
+          command: pip install -e ".[dev]"
+      - run:
+          name: Ruff lint
+          command: python -m ruff check app/ tests/
+      - run:
+          name: Pytest
+          command: python -m pytest tests/ -q
+
+  frontend:
+    docker:
+      - image: cimg/node:22.11
+    working_directory: ~/atlas/frontend
+    steps:
+      - checkout:
+          path: ~/atlas
+      - run:
+          name: Install
+          command: npm install
+      - run:
+          name: Build
+          command: npm run build
+
+  docker-build:
+    docker:
+      - image: cimg/base:2024.11
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - run:
+          name: Build backend image
+          command: docker build -t atlas-backend .
+
+workflows:
+  ci:
+    jobs:
+      - backend
+      - frontend
+      - docker-build:
+          requires:
+            - backend
