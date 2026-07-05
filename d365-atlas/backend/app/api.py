@@ -13,12 +13,20 @@ from pydantic import BaseModel
 from app.d365.auth import TokenProvider
 from app.d365.client import D365Client
 from app.d365.edmx import EntityDoc, parse_edmx
+from app.d365.xpp import parse_xpp
+from app.generate.openapi import build_openapi
+from app.generate.postman import build_postman_collection
 
 router = APIRouter()
 
 
 class IngestRequest(BaseModel):
     edmx_xml: str | None = None  # provide XML for offline ingestion
+
+
+class XppIngestRequest(BaseModel):
+    service_group: str
+    sources: list[str]  # raw X++ file contents
 
 
 class GenerateRequest(BaseModel):
@@ -143,6 +151,46 @@ async def generate(request: Request, body: GenerateRequest) -> dict:
         refined = True
 
     return {"target": target, "refined": refined, "code": code}
+
+
+@router.post("/xpp/ingest")
+async def xpp_ingest(request: Request, body: XppIngestRequest) -> dict:
+    """Parse X++ source files into the service surface D365 never publishes."""
+    all_contracts, all_services = [], []
+    for source in body.sources:
+        contracts, services = parse_xpp(source)
+        all_contracts.extend(contracts)
+        all_services.extend(services)
+    if not all_services:
+        raise HTTPException(
+            422, "No service operations found — expected [SysEntryPointAttribute] methods"
+        )
+    request.app.state.xpp = {
+        "service_group": body.service_group,
+        "contracts": all_contracts,
+        "services": all_services,
+    }
+    return {
+        "service_group": body.service_group,
+        "services": {s.name: [o.name for o in s.operations] for s in all_services},
+        "contracts": {c.name: [m.name for m in c.members] for c in all_contracts},
+    }
+
+
+@router.get("/xpp/openapi")
+async def xpp_openapi(request: Request) -> dict:
+    xpp = getattr(request.app.state, "xpp", None)
+    if not xpp:
+        raise HTTPException(404, "No X++ source ingested — run /xpp/ingest first")
+    return build_openapi(xpp["service_group"], xpp["services"], xpp["contracts"])
+
+
+@router.get("/xpp/postman")
+async def xpp_postman(request: Request) -> dict:
+    xpp = getattr(request.app.state, "xpp", None)
+    if not xpp:
+        raise HTTPException(404, "No X++ source ingested — run /xpp/ingest first")
+    return build_postman_collection(xpp["service_group"], xpp["services"], xpp["contracts"])
 
 
 def make_doc_index(docs: list[EntityDoc]) -> dict[str, EntityDoc]:

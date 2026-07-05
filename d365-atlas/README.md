@@ -11,8 +11,11 @@
 | **SEARCH** — semantic search over embedded metadata | ✅ | "service that posts journal entries" → `LedgerJournalHeader`, `LedgerJournalLine`, `createJournal` |
 | **DECODE** — enum member resolution | ✅ | "sales order status invoiced" → `SalesOrderStatus {Invoiced: 3}` |
 | **GENERATE** — runnable Python clients for custom services + OData entities | ✅ | Generated client compiled AND authenticated live against Azure AD |
+| **X++ PARSE** — `[DataContractAttribute]`/`[SysEntryPointAttribute]` extraction | ✅ | HERJournalService fixture → 3 contracts, 2 operations |
+| **OPENAPI** — the Swagger D365 custom services never had | ✅ | Contract members → JSON schemas with `$ref` resolution |
+| **POSTMAN EXPORT** — collection v2.1 with Get Token + bearer auth pattern | ✅ | Generated collection published to a live Postman workspace via API |
 
-16/16 pytest, ruff clean.
+22/22 pytest, ruff clean.
 
 ## Zero-config by design
 
@@ -80,9 +83,19 @@ app/
 └── main.py          app factory — providers resolve from env at startup
 ```
 
+## X++ → OpenAPI / Postman (Sprint 3)
+
+```bash
+# Ingest raw X++ source (paste file contents — no VS or AOT needed)
+curl -X POST localhost:8000/xpp/ingest -H "Content-Type: application/json" \
+  -d '{"service_group": "HERJournalServiceGroup", "sources": ["<x++ file contents>"]}'
+
+curl localhost:8000/xpp/openapi   # OpenAPI 3.0 spec — feed to Swagger UI
+curl localhost:8000/xpp/postman   # Postman collection v2.1 — import directly
+```
+
 ## Roadmap
 
-- **Sprint 3**: X++ source parsing (`[DataContract]`/`[DataMember]`) → OpenAPI 3.0 spec + Postman collection export for custom services
 - **Sprint 4**: ER configuration XML upload, binding validator, expression co-pilot
 - Next.js frontend on Vercel; deploy backend via Docker → AWS EC2 (OpenTofu, CircleCI)
 
