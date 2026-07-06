@@ -8,12 +8,17 @@ export default function ERPage() {
   const [report, setReport] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [fieldQuery, setFieldQuery] = useState("");
+  const [bindingHits, setBindingHits] = useState(null);
+  const [formulaQuery, setFormulaQuery] = useState("");
+  const [formulaHits, setFormulaHits] = useState(null);
 
   async function validate() {
     setBusy(true);
     setError("");
     setSummary(null);
     setReport(null);
+    setBindingHits(null);
     try {
       const ing = await fetch("/atlas/er/ingest", {
         method: "POST",
@@ -33,13 +38,39 @@ export default function ERPage() {
     }
   }
 
+  async function suggestBinding() {
+    setError("");
+    try {
+      const resp = await fetch(
+        `/atlas/er/suggest?field=${encodeURIComponent(fieldQuery)}&top_k=3`
+      );
+      if (!resp.ok) throw new Error((await resp.json()).detail || resp.statusText);
+      setBindingHits((await resp.json()).suggestions);
+    } catch (e) {
+      setError(String(e.message || e));
+    }
+  }
+
+  async function searchFormulas() {
+    setError("");
+    try {
+      const resp = await fetch(
+        `/atlas/er/formulas?q=${encodeURIComponent(formulaQuery)}&top_k=3`
+      );
+      if (!resp.ok) throw new Error((await resp.json()).detail || resp.statusText);
+      setFormulaHits((await resp.json()).patterns);
+    } catch (e) {
+      setError(String(e.message || e));
+    }
+  }
+
   return (
     <>
-      <h1>ER Config Validator</h1>
+      <h1>ER Config Validator + Assist</h1>
       <p className="subtitle">
-        Paste an exported Electronic Reporting configuration. ATLAS checks every
-        binding against the data model and lints expressions — catching at design
-        time what D365 only surfaces at runtime.
+        Paste an exported Electronic Reporting configuration. ATLAS validates every
+        binding and expression, suggests fixes, and helps you find the right data
+        source path — at design time, not runtime.
       </p>
 
       <label className="field">Exported ER configuration XML</label>
@@ -75,33 +106,92 @@ export default function ERPage() {
                 <span className="score">{f.kind}</span>
               </div>
               <p className="meta">{f.detail}</p>
+              {f.suggestion && <p className="ok">💡 {f.suggestion}</p>}
             </div>
           ))}
 
-          {report.format_elements.map((el) => (
-            <div className="card" key={el.name}>
-              <div className="card-head">
-                <h3>{el.name}</h3>
-                <span className="badge entity">{el.type || "element"}</span>
-              </div>
-              {el.bindings.length > 0 && (
-                <div className="chips">
-                  {el.bindings.map((b) => (
-                    <span className="chip" key={b}>
-                      {b}
-                    </span>
-                  ))}
-                </div>
-              )}
-              {el.formulas.map((f, i) => (
-                <p className="meta" key={i}>
-                  ƒ {f}
-                </p>
-              ))}
+          <div className="card">
+            <div className="card-head">
+              <h3>Suggest a binding</h3>
+              <span className="badge action">assist</span>
             </div>
-          ))}
+            <p className="meta">
+              Describe the field in plain language — ATLAS ranks the model paths.
+            </p>
+            <div className="row">
+              <input
+                type="text"
+                placeholder='e.g. "creditor account number"'
+                value={fieldQuery}
+                onChange={(e) => setFieldQuery(e.target.value)}
+              />
+              <button
+                className="secondary"
+                onClick={suggestBinding}
+                disabled={!fieldQuery.trim()}
+              >
+                Suggest
+              </button>
+            </div>
+            {bindingHits && (
+              <div className="chips">
+                {bindingHits.map((h) => (
+                  <span className="chip" key={h.path}>
+                    {h.path} · {h.score}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="card">
+            <div className="card-head">
+              <h3>Model tree</h3>
+              <span className="badge entity">data model</span>
+            </div>
+            {report.model_paths.map((p) => {
+              const depth = p.split(".").length - 2;
+              return (
+                <p className="meta" key={p} style={{ paddingLeft: `${depth * 18}px` }}>
+                  {depth > 0 ? "└ " : ""}
+                  {p.split(".").pop()}{" "}
+                  <span className="score">{p}</span>
+                </p>
+              );
+            })}
+          </div>
         </>
       )}
+
+      <div className="card">
+        <div className="card-head">
+          <h3>Formula library</h3>
+          <span className="badge action">assist</span>
+        </div>
+        <p className="meta">Search common GER expression patterns by intent.</p>
+        <div className="row">
+          <input
+            type="text"
+            placeholder='e.g. "format a date" / "sum line amounts"'
+            value={formulaQuery}
+            onChange={(e) => setFormulaQuery(e.target.value)}
+          />
+          <button
+            className="secondary"
+            onClick={searchFormulas}
+            disabled={!formulaQuery.trim()}
+          >
+            Search
+          </button>
+        </div>
+        {formulaHits &&
+          formulaHits.map((f) => (
+            <div key={f.pattern}>
+              <p className="meta">{f.intent}</p>
+              <pre className="code">{f.pattern}</pre>
+            </div>
+          ))}
+      </div>
     </>
   );
 }

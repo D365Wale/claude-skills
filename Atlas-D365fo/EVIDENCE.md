@@ -121,3 +121,44 @@ PASS — Expression error surfaced: unbalanced-paren visible = true
 > wrapper elements by scanning for `Node`/`Element`/`Binding`/`Formula`.
 
 **All checks passed. Sprint 4 complete — all three research-confirmed pain points now have working modules.**
+
+---
+
+## Run 3 — 2026-07-05T18:42:16Z — Sprint 5: ER Assist (co-pilot)
+
+**Commit:** ER Assist — fix suggestions, semantic binding search, formula library
+
+### Backend — pytest + ruff
+
+```
+$ python3 -m pytest tests/ -q
+36 passed, 1 warning in 0.66s      # +7 new ER Assist tests
+
+$ python3 -m ruff check app/ tests/
+All checks passed!
+```
+
+### What Assist adds on top of detection
+
+| Capability | Example (from fixture) |
+|-----------|------------------------|
+| Binding fix suggestion | `model.Payment.Creditor.FullName` → "Did you mean 'model.Payment.Creditor.Name'?" |
+| Function fix suggestion | `ROUNDX` → "Did you mean ROUND(...)?" |
+| Semantic binding search | "creditor account number" → `model.Payment.Creditor.AccountNumber` ranked #1 |
+| Formula library | "sum line amounts" → `SUM(model.Path.To.Lines.Amount)` |
+| Model tree view | indented data-model hierarchy rendered on /er |
+
+### Frontend — Playwright /er journey
+
+```
+PASS — Binding fix suggestion: Creditor.Name suggested = true
+PASS — Function fix suggestion: ROUND suggested for ROUNDX = true
+PASS — Binding search: AccountNumber ranked for 'creditor account number'
+PASS — Formula library: SUM pattern returned for 'sum line amounts'
+```
+
+**Screenshot — ER Assist with suggestions, binding search, and formula library:**
+
+![ER Assist](evidence/er_assist_20260705T184216Z.png)
+
+**All checks passed. Sprint 5 complete — ER module now detects AND advises.**
